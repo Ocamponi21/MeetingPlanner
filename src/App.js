@@ -1,25 +1,37 @@
-import logo from './logo.svg';
-import './App.css';
+import SideMenu from './components/SideMenu';
+import { Layout, Image } from 'antd';
+import Header from './Layout/Header';
+import AppRoutes from "./components/Routes";
+import { Amplify } from "aws-amplify";
+import awsconfig from "./aws-exports";
+import { withAuthenticator } from "@aws-amplify/ui-react";
+import '@aws-amplify/ui-react/styles.css';
 
-function App() {
+Amplify.configure(awsconfig);
+const {Sider, Content, Footer } = Layout;
+
+
+function App() { 
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+
+     <Layout>
+      <Sider style={{backgroundColor: 'white'}}>
+        <Image
+          src="https://th.bing.com/th/id/R.fb92b1781b18ecd79cdf7779ef4aab0c?rik=Vx7pUOK%2foQoPfg&pid=ImgRaw&r=0://th.bing.com/th/id/OIP.3T1nsegMfw-JCNuI1aFzjQHaHK?pid=ImgDet&rs=1 "
+          preview={false}
+          />
+          <SideMenu/>
+      </Sider>
+      <Layout>
+      <Content>
+          <AppRoutes />
+        </Content>
+      <Footer style={{textAlign: 'center'}}>
+          Meeting Planner Dashboard @2023
+        </Footer>
+      </Layout>
+     </Layout>
   );
 }
 
-export default App;
+export default withAuthenticator(App);

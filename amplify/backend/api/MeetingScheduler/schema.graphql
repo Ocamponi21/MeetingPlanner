@@ -1,0 +1,23 @@
+type CreateParticipant @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  name: String
+  email: String
+  createmeetingID: ID! @index(name: "byCreateMeeting")
+}
+
+type CreateMeeting @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  name: String!
+  location: String!
+  date: AWSDate!
+  CreateParticipants: [CreateParticipant] @hasMany(indexName: "byCreateMeeting", fields: ["id"])
+  CreateHosts: [CreateHost] @hasMany(indexName: "byCreateMeeting", fields: ["id"])
+}
+
+type CreateHost @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  name: String!
+  email: String!
+  createmeetingID: ID! @index(name: "byCreateMeeting")
+}
+ 
