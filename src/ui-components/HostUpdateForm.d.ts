@@ -5,30 +5,27 @@
  **************************************************************************/
 
 import * as React from "react";
-import { GridProps, TextFieldProps } from "@aws-amplify/ui-react";
-import { EscapeHatchProps } from "@aws-amplify/ui-react/internal";
 import { Host } from "../models";
+import { EscapeHatchProps } from "@aws-amplify/ui-react/internal";
+import { GridProps, TextFieldProps } from "@aws-amplify/ui-react";
 export declare type ValidationResponse = {
     hasError: boolean;
     errorMessage?: string;
 };
 export declare type ValidationFunction<T> = (value: T, validationResponse: ValidationResponse) => ValidationResponse | Promise<ValidationResponse>;
 export declare type HostUpdateFormInputValues = {
-    name?: string;
+    fullName?: string;
     email?: string;
-    AdminSub?: string;
 };
 export declare type HostUpdateFormValidationValues = {
-    name?: ValidationFunction<string>;
+    fullName?: ValidationFunction<string>;
     email?: ValidationFunction<string>;
-    AdminSub?: ValidationFunction<string>;
 };
-export declare type PrimitiveOverrideProps<T> = Partial<T> & React.DOMAttributes<HTMLDivElement>;
+export declare type FormProps<T> = Partial<T> & React.DOMAttributes<HTMLDivElement>;
 export declare type HostUpdateFormOverridesProps = {
-    HostUpdateFormGrid?: PrimitiveOverrideProps<GridProps>;
-    name?: PrimitiveOverrideProps<TextFieldProps>;
-    email?: PrimitiveOverrideProps<TextFieldProps>;
-    AdminSub?: PrimitiveOverrideProps<TextFieldProps>;
+    HostUpdateFormGrid?: FormProps<GridProps>;
+    fullName?: FormProps<TextFieldProps>;
+    email?: FormProps<TextFieldProps>;
 } & EscapeHatchProps;
 export declare type HostUpdateFormProps = React.PropsWithChildren<{
     overrides?: HostUpdateFormOverridesProps | undefined | null;
@@ -38,6 +35,7 @@ export declare type HostUpdateFormProps = React.PropsWithChildren<{
     onSubmit?: (fields: HostUpdateFormInputValues) => HostUpdateFormInputValues;
     onSuccess?: (fields: HostUpdateFormInputValues) => void;
     onError?: (fields: HostUpdateFormInputValues, errorMessage: string) => void;
+    onCancel?: () => void;
     onChange?: (fields: HostUpdateFormInputValues) => HostUpdateFormInputValues;
     onValidate?: HostUpdateFormValidationValues;
 } & React.CSSProperties>;

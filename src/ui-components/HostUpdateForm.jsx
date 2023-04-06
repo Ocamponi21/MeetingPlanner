@@ -6,66 +6,51 @@
 
 /* eslint-disable */
 import * as React from "react";
-import { Button, Flex, Grid, TextField } from "@aws-amplify/ui-react";
-import { getOverrideProps } from "@aws-amplify/ui-react/internal";
-import { Host } from "../models";
 import { fetchByPath, validateField } from "./utils";
+import { Host } from "../models";
+import { getOverrideProps } from "@aws-amplify/ui-react/internal";
+import { Button, Flex, Grid, TextField } from "@aws-amplify/ui-react";
 import { DataStore } from "aws-amplify";
 export default function HostUpdateForm(props) {
   const {
-    id: idProp,
-    host: hostModelProp,
+    id,
+    host,
     onSuccess,
     onError,
     onSubmit,
+    onCancel,
     onValidate,
     onChange,
     overrides,
     ...rest
   } = props;
   const initialValues = {
-    name: "",
-    email: "",
-    AdminSub: "",
+    fullName: undefined,
+    email: undefined,
   };
-  const [name, setName] = React.useState(initialValues.name);
+  const [fullName, setFullName] = React.useState(initialValues.fullName);
   const [email, setEmail] = React.useState(initialValues.email);
-  const [AdminSub, setAdminSub] = React.useState(initialValues.AdminSub);
   const [errors, setErrors] = React.useState({});
   const resetStateValues = () => {
-    const cleanValues = hostRecord
-      ? { ...initialValues, ...hostRecord }
-      : initialValues;
-    setName(cleanValues.name);
+    const cleanValues = { ...initialValues, ...hostRecord };
+    setFullName(cleanValues.fullName);
     setEmail(cleanValues.email);
-    setAdminSub(cleanValues.AdminSub);
     setErrors({});
   };
-  const [hostRecord, setHostRecord] = React.useState(hostModelProp);
+  const [hostRecord, setHostRecord] = React.useState(host);
   React.useEffect(() => {
     const queryData = async () => {
-      const record = idProp
-        ? await DataStore.query(Host, idProp)
-        : hostModelProp;
+      const record = id ? await DataStore.query(Host, id) : host;
       setHostRecord(record);
     };
     queryData();
-  }, [idProp, hostModelProp]);
+  }, [id, host]);
   React.useEffect(resetStateValues, [hostRecord]);
   const validations = {
-    name: [{ type: "Required" }],
-    email: [{ type: "Required" }, { type: "Email" }],
-    AdminSub: [],
+    fullName: [],
+    email: [],
   };
-  const runValidationTasks = async (
-    fieldName,
-    currentValue,
-    getDisplayValue
-  ) => {
-    const value =
-      currentValue && getDisplayValue
-        ? getDisplayValue(currentValue)
-        : currentValue;
+  const runValidationTasks = async (fieldName, value) => {
     let validationResponse = validateField(value, validations[fieldName]);
     const customValidator = fetchByPath(onValidate, fieldName);
     if (customValidator) {
@@ -83,9 +68,8 @@ export default function HostUpdateForm(props) {
       onSubmit={async (event) => {
         event.preventDefault();
         let modelFields = {
-          name,
+          fullName,
           email,
-          AdminSub,
         };
         const validationResponses = await Promise.all(
           Object.keys(validations).reduce((promises, fieldName) => {
@@ -110,11 +94,6 @@ export default function HostUpdateForm(props) {
           modelFields = onSubmit(modelFields);
         }
         try {
-          Object.entries(modelFields).forEach(([key, value]) => {
-            if (typeof value === "string" && value.trim() === "") {
-              modelFields[key] = undefined;
-            }
-          });
           await DataStore.save(
             Host.copyOf(hostRecord, (updated) => {
               Object.assign(updated, modelFields);
@@ -129,47 +108,45 @@ export default function HostUpdateForm(props) {
           }
         }
       }}
-      {...getOverrideProps(overrides, "HostUpdateForm")}
       {...rest}
+      {...getOverrideProps(overrides, "HostUpdateForm")}
     >
       <TextField
-        label="Name"
-        isRequired={true}
+        label="Full name"
+        isRequired={false}
         isReadOnly={false}
-        value={name}
+        defaultValue={fullName}
         onChange={(e) => {
           let { value } = e.target;
           if (onChange) {
             const modelFields = {
-              name: value,
+              fullName: value,
               email,
-              AdminSub,
             };
             const result = onChange(modelFields);
-            value = result?.name ?? value;
+            value = result?.fullName ?? value;
           }
-          if (errors.name?.hasError) {
-            runValidationTasks("name", value);
+          if (errors.fullName?.hasError) {
+            runValidationTasks("fullName", value);
           }
-          setName(value);
+          setFullName(value);
         }}
-        onBlur={() => runValidationTasks("name", name)}
-        errorMessage={errors.name?.errorMessage}
-        hasError={errors.name?.hasError}
-        {...getOverrideProps(overrides, "name")}
+        onBlur={() => runValidationTasks("fullName", fullName)}
+        errorMessage={errors.fullName?.errorMessage}
+        hasError={errors.fullName?.hasError}
+        {...getOverrideProps(overrides, "fullName")}
       ></TextField>
       <TextField
         label="Email"
-        isRequired={true}
+        isRequired={false}
         isReadOnly={false}
-        value={email}
+        defaultValue={email}
         onChange={(e) => {
           let { value } = e.target;
           if (onChange) {
             const modelFields = {
-              name,
+              fullName,
               email: value,
-              AdminSub,
             };
             const result = onChange(modelFields);
             value = result?.email ?? value;
@@ -184,32 +161,6 @@ export default function HostUpdateForm(props) {
         hasError={errors.email?.hasError}
         {...getOverrideProps(overrides, "email")}
       ></TextField>
-      <TextField
-        label="Admin sub"
-        isRequired={false}
-        isReadOnly={false}
-        value={AdminSub}
-        onChange={(e) => {
-          let { value } = e.target;
-          if (onChange) {
-            const modelFields = {
-              name,
-              email,
-              AdminSub: value,
-            };
-            const result = onChange(modelFields);
-            value = result?.AdminSub ?? value;
-          }
-          if (errors.AdminSub?.hasError) {
-            runValidationTasks("AdminSub", value);
-          }
-          setAdminSub(value);
-        }}
-        onBlur={() => runValidationTasks("AdminSub", AdminSub)}
-        errorMessage={errors.AdminSub?.errorMessage}
-        hasError={errors.AdminSub?.hasError}
-        {...getOverrideProps(overrides, "AdminSub")}
-      ></TextField>
       <Flex
         justifyContent="space-between"
         {...getOverrideProps(overrides, "CTAFlex")}
@@ -217,11 +168,7 @@ export default function HostUpdateForm(props) {
         <Button
           children="Reset"
           type="reset"
-          onClick={(event) => {
-            event.preventDefault();
-            resetStateValues();
-          }}
-          isDisabled={!(idProp || hostModelProp)}
+          onClick={resetStateValues}
           {...getOverrideProps(overrides, "ResetButton")}
         ></Button>
         <Flex
@@ -229,13 +176,18 @@ export default function HostUpdateForm(props) {
           {...getOverrideProps(overrides, "RightAlignCTASubFlex")}
         >
           <Button
+            children="Cancel"
+            type="button"
+            onClick={() => {
+              onCancel && onCancel();
+            }}
+            {...getOverrideProps(overrides, "CancelButton")}
+          ></Button>
+          <Button
             children="Submit"
             type="submit"
             variation="primary"
-            isDisabled={
-              !(idProp || hostModelProp) ||
-              Object.values(errors).some((e) => e?.hasError)
-            }
+            isDisabled={Object.values(errors).some((e) => e?.hasError)}
             {...getOverrideProps(overrides, "SubmitButton")}
           ></Button>
         </Flex>

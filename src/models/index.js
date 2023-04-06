@@ -4,10 +4,8 @@ import { schema } from './schema';
 
 
 
-const { CreateParticipant, CreateMeeting, CreateHost } = initSchema(schema);
+const { Host } = initSchema(schema);
 
 export {
-  CreateParticipant,
-  CreateMeeting,
-  CreateHost
+  Host
 };

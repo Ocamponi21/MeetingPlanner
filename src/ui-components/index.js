@@ -5,5 +5,5 @@
  **************************************************************************/
 
 export { default as studioTheme } from "./studioTheme";
-export { default as CreateMeetingCreateForm } from "./CreateMeetingCreateForm";
-export { default as CreateMeetingUpdateForm } from "./CreateMeetingUpdateForm";
+export { default as HostCreateForm } from "./HostCreateForm";
+export { default as HostUpdateForm } from "./HostUpdateForm";

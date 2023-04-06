@@ -6,10 +6,10 @@
 
 /* eslint-disable */
 import * as React from "react";
-import { Button, Flex, Grid, TextField } from "@aws-amplify/ui-react";
-import { getOverrideProps } from "@aws-amplify/ui-react/internal";
-import { Host } from "../models";
 import { fetchByPath, validateField } from "./utils";
+import { Host } from "../models";
+import { getOverrideProps } from "@aws-amplify/ui-react/internal";
+import { Button, Flex, Grid, TextField } from "@aws-amplify/ui-react";
 import { DataStore } from "aws-amplify";
 export default function HostCreateForm(props) {
   const {
@@ -17,40 +17,29 @@ export default function HostCreateForm(props) {
     onSuccess,
     onError,
     onSubmit,
+    onCancel,
     onValidate,
     onChange,
     overrides,
     ...rest
   } = props;
   const initialValues = {
-    name: "",
-    email: "",
-    AdminSub: "",
+    fullName: undefined,
+    email: undefined,
   };
-  const [name, setName] = React.useState(initialValues.name);
+  const [fullName, setFullName] = React.useState(initialValues.fullName);
   const [email, setEmail] = React.useState(initialValues.email);
-  const [AdminSub, setAdminSub] = React.useState(initialValues.AdminSub);
   const [errors, setErrors] = React.useState({});
   const resetStateValues = () => {
-    setName(initialValues.name);
+    setFullName(initialValues.fullName);
     setEmail(initialValues.email);
-    setAdminSub(initialValues.AdminSub);
     setErrors({});
   };
   const validations = {
-    name: [{ type: "Required" }],
-    email: [{ type: "Required" }, { type: "Email" }],
-    AdminSub: [],
+    fullName: [],
+    email: [],
   };
-  const runValidationTasks = async (
-    fieldName,
-    currentValue,
-    getDisplayValue
-  ) => {
-    const value =
-      currentValue && getDisplayValue
-        ? getDisplayValue(currentValue)
-        : currentValue;
+  const runValidationTasks = async (fieldName, value) => {
     let validationResponse = validateField(value, validations[fieldName]);
     const customValidator = fetchByPath(onValidate, fieldName);
     if (customValidator) {
@@ -68,9 +57,8 @@ export default function HostCreateForm(props) {
       onSubmit={async (event) => {
         event.preventDefault();
         let modelFields = {
-          name,
+          fullName,
           email,
-          AdminSub,
         };
         const validationResponses = await Promise.all(
           Object.keys(validations).reduce((promises, fieldName) => {
@@ -95,11 +83,6 @@ export default function HostCreateForm(props) {
           modelFields = onSubmit(modelFields);
         }
         try {
-          Object.entries(modelFields).forEach(([key, value]) => {
-            if (typeof value === "string" && value.trim() === "") {
-              modelFields[key] = undefined;
-            }
-          });
           await DataStore.save(new Host(modelFields));
           if (onSuccess) {
             onSuccess(modelFields);
@@ -113,47 +96,43 @@ export default function HostCreateForm(props) {
           }
         }
       }}
-      {...getOverrideProps(overrides, "HostCreateForm")}
       {...rest}
+      {...getOverrideProps(overrides, "HostCreateForm")}
     >
       <TextField
-        label="Name"
-        isRequired={true}
+        label="Full name"
+        isRequired={false}
         isReadOnly={false}
-        value={name}
         onChange={(e) => {
           let { value } = e.target;
           if (onChange) {
             const modelFields = {
-              name: value,
+              fullName: value,
               email,
-              AdminSub,
             };
             const result = onChange(modelFields);
-            value = result?.name ?? value;
+            value = result?.fullName ?? value;
           }
-          if (errors.name?.hasError) {
-            runValidationTasks("name", value);
+          if (errors.fullName?.hasError) {
+            runValidationTasks("fullName", value);
           }
-          setName(value);
+          setFullName(value);
         }}
-        onBlur={() => runValidationTasks("name", name)}
-        errorMessage={errors.name?.errorMessage}
-        hasError={errors.name?.hasError}
-        {...getOverrideProps(overrides, "name")}
+        onBlur={() => runValidationTasks("fullName", fullName)}
+        errorMessage={errors.fullName?.errorMessage}
+        hasError={errors.fullName?.hasError}
+        {...getOverrideProps(overrides, "fullName")}
       ></TextField>
       <TextField
         label="Email"
-        isRequired={true}
+        isRequired={false}
         isReadOnly={false}
-        value={email}
         onChange={(e) => {
           let { value } = e.target;
           if (onChange) {
             const modelFields = {
-              name,
+              fullName,
               email: value,
-              AdminSub,
             };
             const result = onChange(modelFields);
             value = result?.email ?? value;
@@ -168,32 +147,6 @@ export default function HostCreateForm(props) {
         hasError={errors.email?.hasError}
         {...getOverrideProps(overrides, "email")}
       ></TextField>
-      <TextField
-        label="Admin sub"
-        isRequired={false}
-        isReadOnly={false}
-        value={AdminSub}
-        onChange={(e) => {
-          let { value } = e.target;
-          if (onChange) {
-            const modelFields = {
-              name,
-              email,
-              AdminSub: value,
-            };
-            const result = onChange(modelFields);
-            value = result?.AdminSub ?? value;
-          }
-          if (errors.AdminSub?.hasError) {
-            runValidationTasks("AdminSub", value);
-          }
-          setAdminSub(value);
-        }}
-        onBlur={() => runValidationTasks("AdminSub", AdminSub)}
-        errorMessage={errors.AdminSub?.errorMessage}
-        hasError={errors.AdminSub?.hasError}
-        {...getOverrideProps(overrides, "AdminSub")}
-      ></TextField>
       <Flex
         justifyContent="space-between"
         {...getOverrideProps(overrides, "CTAFlex")}
@@ -201,16 +154,21 @@ export default function HostCreateForm(props) {
         <Button
           children="Clear"
           type="reset"
-          onClick={(event) => {
-            event.preventDefault();
-            resetStateValues();
-          }}
+          onClick={resetStateValues}
           {...getOverrideProps(overrides, "ClearButton")}
         ></Button>
         <Flex
           gap="15px"
           {...getOverrideProps(overrides, "RightAlignCTASubFlex")}
         >
+          <Button
+            children="Cancel"
+            type="button"
+            onClick={() => {
+              onCancel && onCancel();
+            }}
+            {...getOverrideProps(overrides, "CancelButton")}
+          ></Button>
           <Button
             children="Submit"
             type="submit"

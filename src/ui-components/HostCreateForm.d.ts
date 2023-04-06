@@ -5,29 +5,26 @@
  **************************************************************************/
 
 import * as React from "react";
-import { GridProps, TextFieldProps } from "@aws-amplify/ui-react";
 import { EscapeHatchProps } from "@aws-amplify/ui-react/internal";
+import { GridProps, TextFieldProps } from "@aws-amplify/ui-react";
 export declare type ValidationResponse = {
     hasError: boolean;
     errorMessage?: string;
 };
 export declare type ValidationFunction<T> = (value: T, validationResponse: ValidationResponse) => ValidationResponse | Promise<ValidationResponse>;
 export declare type HostCreateFormInputValues = {
-    name?: string;
+    fullName?: string;
     email?: string;
-    AdminSub?: string;
 };
 export declare type HostCreateFormValidationValues = {
-    name?: ValidationFunction<string>;
+    fullName?: ValidationFunction<string>;
     email?: ValidationFunction<string>;
-    AdminSub?: ValidationFunction<string>;
 };
-export declare type PrimitiveOverrideProps<T> = Partial<T> & React.DOMAttributes<HTMLDivElement>;
+export declare type FormProps<T> = Partial<T> & React.DOMAttributes<HTMLDivElement>;
 export declare type HostCreateFormOverridesProps = {
-    HostCreateFormGrid?: PrimitiveOverrideProps<GridProps>;
-    name?: PrimitiveOverrideProps<TextFieldProps>;
-    email?: PrimitiveOverrideProps<TextFieldProps>;
-    AdminSub?: PrimitiveOverrideProps<TextFieldProps>;
+    HostCreateFormGrid?: FormProps<GridProps>;
+    fullName?: FormProps<TextFieldProps>;
+    email?: FormProps<TextFieldProps>;
 } & EscapeHatchProps;
 export declare type HostCreateFormProps = React.PropsWithChildren<{
     overrides?: HostCreateFormOverridesProps | undefined | null;
@@ -36,6 +33,7 @@ export declare type HostCreateFormProps = React.PropsWithChildren<{
     onSubmit?: (fields: HostCreateFormInputValues) => HostCreateFormInputValues;
     onSuccess?: (fields: HostCreateFormInputValues) => void;
     onError?: (fields: HostCreateFormInputValues, errorMessage: string) => void;
+    onCancel?: () => void;
     onChange?: (fields: HostCreateFormInputValues) => HostCreateFormInputValues;
     onValidate?: HostCreateFormValidationValues;
 } & React.CSSProperties>;

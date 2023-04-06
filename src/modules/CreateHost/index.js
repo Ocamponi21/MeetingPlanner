@@ -1,5 +1,6 @@
 import { Card, Input, Button, message, Form} from "antd"
-
+import { DataStore } from '@aws-amplify/datastore';
+import { Host } from '../../models';
 
 const {TextArea} =Input;
 
@@ -14,6 +15,10 @@ const CreateHost = () => {
                 message.error('Email required!');
                 return;
             }
+            DataStore.save(new Host({
+                fullName: name,
+                email,
+            }));
             message.success('Host created!');
     };
     return (

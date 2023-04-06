@@ -12,14 +12,6 @@ const SideMenu = () => {
             label: 'Host'
         },
         { 
-            key: 'meeting',
-            label: 'Meeting'
-        },
-        { 
-            key: 'participant',
-            label: 'Participant'
-        },
-        { 
             key: 'signout',
             label: 'Sign Out'
         }
